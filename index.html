@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEGA Dashboard (BLE)</title>
+    <style>
+        @font-face {
+            font-family: 'ORION DK';
+            src:url('/assets/fonts/ORIONDK.TTF') format('truetype'),
+                url('./assets/fonts/ORIONDK.TTF') format('truetype');
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+        }
+        /* ============================================================
+            サイズ・カラー設定
+           ============================================================ */
+        :root {
+            --logo-height: 35px;
+            --dashboard-font-size: 40px;
+            --rc-pad-border: #7a7a7a;
+            --rc-pad-border-width: 4px;
+            --rc-stick-size: 60px;
+            --rc-stick-grad-start: #252525;
+            --rc-stick-grad-end: #252525;
+            --rc-stick-border: #636363;
+        }
+
+        html, body { height: 100%; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            overflow-x: hidden;
+            color: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            width: 95%;
+            align-self: center;
+            flex: 1 0 auto;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px;
+        }
+        div { color: inherit; }
+        .title {
+            display: flex;
+            align-items: center;
+            gap: 0.6em;
+            font-size: 25px;
+            color: #000000;
+            font-weight: bold;
+        }
+        .title-logo { height: 40px; display: block; }
+        .title-text {
+            height: 50px;
+            line-height: 50px;
+            font-size: 56px;
+            font-weight: 400;
+            font-family: 'ORION DK', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: inline-block;
+            color: #010101;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .run-controls { margin-bottom: 8px; }
+        .run-controls.hidden { display: none; }
+        button {
+            padding: 8px 15px;
+            border: none;
+            outline: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #4f4f4f;
+            color: #ffffff;
+            height: 36px;
+            transition: transform 0.15s ease;
+        }
+        button:hover:not(:disabled) { transform: scale(1.05); }
+        button:active { transform: scale(1.02); }
+        button:disabled {
+            background-color: #c8c8c8 !important;
+            color: #ffffff !important;
+            cursor: not-allowed;
+        }
+        .rc-panel {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 14px;
+            background: transparent;
+            border-radius: 18px;
+        }
+        .rc-panel.hidden { display: none; }
+        .rc-speed {
+            min-width: 210px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .rc-speed-label { font-size: 12px; color: #000000; font-weight: 700; }
+        .rc-speed-slider { width: 100%; accent-color: #ff9030; }
+        .rc-speed-value { font-size: 20px; color: #000000; margin-top: -10px; }
+        .rc-pad {
+            width: 150px; height: 150px; border-radius: 50%;
+            border: var(--rc-pad-border-width) solid var(--rc-pad-border);
+            position: relative; touch-action: none; user-select: none; cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .rc-stick {
+            width: var(--rc-stick-size); height: var(--rc-stick-size); border-radius: 50%;
+            background: linear-gradient(160deg, var(--rc-stick-grad-start), var(--rc-stick-grad-end));
+            border: 2px solid var(--rc-stick-border); position: absolute;
+            left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none;
+        }
+        .btn-realtime-switch {
+            background: transparent !important; border: none; display: inline-flex;
+            align-items: center; gap: 10px; pointer-events: none;
+        }
+        .btn-realtime-switch .switch-track {
+            pointer-events: auto; cursor: pointer; width: 46px; height: 24px;
+            border-radius: 999px; position: relative; border: 1px solid #2e3238;
+            background: #050607; overflow: hidden;
+        }
+        .btn-realtime-switch .switch-track::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, #ff7a00, #ffb347); opacity: 0; transition: opacity 0.22s;
+        }
+        .btn-realtime-switch .switch-thumb {
+            width: 18px; height: 18px; border-radius: 50%; position: absolute;
+            top: 2px; left: 2px; background: #f4f6f8; transition: transform 0.24s;
+        }
+        .btn-realtime-switch.active { color: #ff9030; }
+        .btn-realtime-switch.active .switch-track::before { opacity: 1; }
+        .btn-realtime-switch.active .switch-thumb { transform: translateX(22px); }
+        .sensor-buttons { display: flex; gap: 10px; margin-bottom: 12px; padding-left: 12px; }
+        .line-sensor-section { background-color: #ffffff; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .graph-container { background-color: #ffffff; border-radius: 12px; margin-bottom: 20px; padding: 15px; height: 300px; position: relative; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .table-container { background-color: #ffffff; border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        table thead { background-color: #353535; color: #ffffff; }
+        table th, table td { padding: 10px; border: 1px solid #555; }
+        .console-info { background-color: #353535; font-family: monospace; font-size: 11px; color: #ffffff; padding: 15px; height: 100px; display: none; }
+        
+        /* BLEレイアウト用調整スタイル */
+        .ble-combined {
+            display: flex; align-items: center; border: 1px solid #353535; border-radius: 6px; overflow: hidden; background: #ffffff;
+        }
+        .btn-ble { border-radius: 0; white-space: nowrap; padding: 7px 15px; background-color: #353535; color: #ffffff; height: 36px; }
+        .btn-ble.connected { background-color: #ff9030 !important; }
+        .btn-connect.connected { background-color: #ff9030; color: #ffffff; }
+        .btn-sensor { background-color: #353535 !important; color: #ffffff !important; }
+        .btn-sensor.active { background-color: #ff9030 !important; }
+        #runStartBtn { background-color: #a8e6b8 !important; color: #2d5a3d !important; }
+        #runStopBtn { background-color: #f0a8a8 !important; color: #6b2020 !important; }
+        #runRcBtn { background-color: #ffd4a0 !important; color: #7a4000 !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">
+                <img src="./assets/images/VEGA.png" alt="VEGA" class="title-logo">
+                <span class="title-text">Dashboard</span>
+            </div>
+            <div class="header-actions">
+                <div class="ble-combined">
+                    <button class="btn-ble" id="bleConnectBtn" onclick="toggleBLERadio()">BLE DISCONNECTED</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls run-controls hidden" id="runControls">
+            <button class="btn-run btn-run-start" id="runStartBtn" onclick="setRunMode('start')">Run</button>
+            <button class="btn-run btn-run-stop" id="runStopBtn" onclick="setRunMode('stop')">Stop</button>
+            <button class="btn-run btn-run-rc" id="runRcBtn" onclick="toggleRcMode()">RC</button>
+        </div>
+
+        <div class="rc-panel hidden" id="rcPanel">
+            <div id="rcPad" class="rc-pad" role="application">
+                <div id="rcStick" class="rc-stick"></div>
+            </div>
+            <div class="rc-speed">
+                <label class="rc-speed-label" for="rcSpeedSlider">RC Speed</label>
+                <input type="range" id="rcSpeedSlider" class="rc-speed-slider" min="80" max="200" step="5" value="150">
+                <div class="rc-speed-value"><span id="rcSpeedValue">150</span></div>
+                <button class="btn-status btn-realtime-switch btn-line-switch active" id="lineAvoidSwitchBtn" onclick="toggleLineAvoidSwitch()">
+                    <span class="switch-label">Line Avoid</span>
+                    <span class="switch-track"><span class="switch-thumb"></span></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-connect disconnected" id="connectBtn" onclick="toggleBLERadio()">Disconnected</button>
+            <button class="btn-get-logs" id="getLogsBtn" onclick="requestLogs()">Get Logs</button>
+            <button class="btn-clear" id="clearBtn" onclick="clearLogs()">Clear</button>
+            <button class="btn-status" id="statusBtn" onclick="requestStatus()">Status</button>
+            <button class="btn-status btn-realtime-switch" id="realtimeBtn" onclick="toggleRealtimeMode()">
+                <span class="switch-label">Monitor</span>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+            </button>
+        </div>
+
+        <div class="sensor-buttons">
+            <button class="btn-sensor active" id="sensorLineBtn">Line</button>
+        </div>
+
+        <div id="graph-section">
+            <div class="graph-container">
+                <canvas id="graphCanvas"></canvas>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Log #</th><th>Timestamp (ms)</th><th>Value</th></tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="console-info" id="console"></div>
+    </div>
+
+    <script>
+        const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+        const CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+
+        let bleDevice = null;
+        let bleCharacteristic = null;
+        let isBleConnected = false;
+
+        async function toggleBLERadio() {
+            const btn = document.getElementById('bleConnectBtn');
+            if (!isBleConnected) {
+                try {
+                    logConsole("BLEデバイスの探索を開始...");
+                    bleDevice = await navigator.bluetooth.requestDevice({
+                        filters: [{ services: [SERVICE_UUID] }]
+                    });
+
+                    logConsole(`接続中: ${bleDevice.name}`);
+                    const server = await bleDevice.gatt.connect();
+                    const service = await server.getPrimaryService(SERVICE_UUID);
+                    bleCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+                    await bleCharacteristic.startNotifications();
+                    bleCharacteristic.addEventListener('characteristicvaluechanged', handleBLEReceivedData);
+
+                    isBleConnected = true;
+                    btn.innerText = "BLE ONLINE";
+                    btn.classList.add('connected');
+                    document.getElementById('connectBtn').innerText = "Connected (BLE)";
+                    document.getElementById('connectBtn').classList.remove('disconnected');
+                    document.getElementById('connectBtn').classList.add('connected');
+                    document.getElementById('runControls').classList.remove('hidden');
+                    logConsole("BLE通信が確立しました。");
+                } catch (error) {
+                    logConsole(`BLE接続エラー: ${error}`);
+                    alert(`接続失敗: ${error}`);
+                }
+            } else {
+                if (bleDevice && bleDevice.gatt.connected) {
+                    bleDevice.gatt.disconnect();
+                }
+                isBleConnected = false;
+                btn.innerText = "BLE DISCONNECTED";
+                btn.classList.remove('connected');
+                document.getElementById('connectBtn').innerText = "Disconnected";
+                document.getElementById('connectBtn').classList.remove('connected');
+                document.getElementById('connectBtn').classList.add('disconnected');
+                document.getElementById('runControls').classList.add('hidden');
+                logConsole("BLE通信を切断しました。");
+            }
+        }
+
+        function handleBLEReceivedData(event) {
+            const value = event.target.value;
+            const decoder = new TextDecoder('utf-8');
+            const rawString = decoder.decode(value);
+            logConsole(`Rx: ${rawString.trim()}`);
+            
+            // マイコンから受信した文字列の描画・解析処理をここに連結
+            appendTableAndGraph(rawString);
+        }
+
+        async function sendBLECommand(command) {
+            if (!bleCharacteristic || !isBleConnected) {
+                logConsole("エラー: BLE未接続です。");
+                return;
+            }
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(command + "\n");
+                await bleCharacteristic.writeValue(data);
+                logConsole(`Tx: ${command}`);
+            } catch (error) {
+                logConsole(`送信失敗: ${error}`);
+            }
+        }
+
+        // コマンド動作用関数群
+        function setRunMode(mode) { sendBLECommand(`RUN:${mode}`); }
+        function toggleRcMode() {
+            const panel = document.getElementById('rcPanel');
+            panel.classList.toggle('hidden');
+            sendBLECommand("MODE:RC");
+        }
+        function requestLogs() { sendBLECommand("GET_LOGS"); }
+        function clearLogs() { 
+            document.getElementById('table-body').innerHTML = ''; 
+            sendBLECommand("CLEAR_LOGS");
+        }
+        function requestStatus() { sendBLECommand("REQ_STATUS"); }
+        function toggleLineAvoidSwitch() { sendBLECommand("TOGGLE_AVOID"); }
+        function toggleRealtimeMode() { sendBLECommand("TOGGLE_MONITOR"); }
+
+        // ダミー描画関数（元の描画ロジックと置き換えてください）
+        function appendTableAndGraph(data) {
+            const tbody = document.getElementById('table-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>#</td><td>${Date.now()}</td><td>${data}</td>`;
+            if(tbody.firstChild) {
+                tbody.insertBefore(row, tbody.firstChild);
+            } else {
+                tbody.appendChild(row);
+            }
+        }
+
+        function logConsole(msg) {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.style.display = 'block';
+            const line = document.createElement('div');
+            line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            consoleDiv.appendChild(line);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

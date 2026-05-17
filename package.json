@@ -1,0 +1,28 @@
+{
+  "name": "vega-dashboard-ble",
+  "version": "1.0.0",
+  "description": "VEGA Dashboard BLE Edition",
+  "author": "akihi",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . VEGA-Dashboard-BLE --platform=win32 --arch=x64 --overwrite"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.vega.dashboard.ble",
+    "productName": "VEGA-Dashboard-BLE",
+    "win": {
+      "target": "portable"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "assets/**/*"
+    ]
+  }
+}

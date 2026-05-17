@@ -1,0 +1,5 @@
+node_modules/
+dist/
+VEGA-Dashboard-BLE-win32-x64/
+*.zip
+*.exe
