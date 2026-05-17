@@ -18,7 +18,7 @@ function createWindow() {
         event.preventDefault(); // デフォルトの挙動（ポップアップを出そうとする処理）をキャンセル
         
         // 検索で見つかったデバイスの中から、マイコンの名前と一致するものを探す
-        const targetDevice = deviceList.find(device => device.deviceName === 'VEGA_Mk3_BLE');
+        const targetDevice = deviceList.find(device => device.deviceName === 'VEGA_UI_mk3');
         
         if (targetDevice) {
             console.log("ターゲットデバイスを発見しました:", targetDevice.deviceName);

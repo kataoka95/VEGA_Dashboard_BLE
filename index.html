@@ -31,6 +31,8 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            user-select: none;
+            overflow-x: hidden;
         }
 
         * {
@@ -52,221 +54,144 @@
             gap: 20px;
         }
 
-        /* ============================================================
-            HEADER & TITLE
-           ============================================================ */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
+        /* HEADER & BADGE */
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .title-area { display: flex; align-items: center; gap: 15px; }
+        .logo-text { font-size: 38px; font-weight: 900; color: var(--accent-orange); letter-spacing: 2px; text-shadow: 0 0 12px rgba(255, 122, 0, 0.6); }
+        .title-text { font-size: 38px; font-weight: 300; color: var(--text-main); letter-spacing: 1px; }
+
+        .badge-container { display: flex; gap: 10px; }
+        .btn-ble { background: #1a1010; border: 1px solid #5a2020; color: var(--accent-red); letter-spacing: 1px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; }
+        .btn-ble::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+        .btn-ble.connected { background: #101c18; border: 1px solid #1a5c40; color: var(--accent-green); }
+        .btn-ble.connected::before { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        
+        /* 開発モード用バッジ（初期状態は非表示） */
+        .badge-dev { display: none; background: #2b1616; border: 1px solid var(--accent-red); color: #fff; font-size: 12px; font-weight: bold; padding: 10px 20px; border-radius: 8px; letter-spacing: 1px; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 85, 85, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 85, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 85, 85, 0); }
         }
 
-        .title-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        /* BUTTON ROW */
+        .button-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        button { padding: 10px 20px; border: 1px solid var(--border-color); outline: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #1c2230; color: var(--text-main); transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); }
+        button:hover { border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: 0 0 12px rgba(0, 240, 255, 0.2); transform: translateY(-1px); }
+        
+        /* 状況によってスタイルが変わる接続ボタン */
+        .btn-connect-main { background: #1a1e29; border-color: #3b4866; color: var(--text-main); }
+        .btn-connect-main.reconnect { background: #261c12; border-color: var(--accent-orange); color: var(--accent-orange); animation: borderGlow 2s infinite alternate; }
+        .btn-connect-main.connected { background: #11221a; border-color: var(--accent-green); color: var(--accent-green); }
+
+        @keyframes borderGlow {
+            from { box-shadow: 0 0 4px rgba(255, 122, 0, 0.2); }
+            to { box-shadow: 0 0 12px rgba(255, 122, 0, 0.6); }
         }
 
-        .logo-text {
-            font-size: 38px;
-            font-weight: 900;
-            color: var(--accent-orange);
-            letter-spacing: 2px;
-            text-shadow: 0 0 12px rgba(255, 122, 0, 0.6);
-        }
+        .btn-line { background: #3d2d1d; border-color: #6e4e2d; color: var(--accent-orange); }
 
-        .title-text {
-            font-size: 38px;
-            font-weight: 300;
-            color: var(--text-main);
-            letter-spacing: 1px;
-        }
-
-        /* ============================================================
-            UI BUTTONS & BADGES
-           ============================================================ */
-        .button-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-            background: var(--bg-card);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        button {
-            padding: 10px 20px;
-            border: 1px solid var(--border-color);
-            outline: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            background: #1c2230;
-            color: var(--text-main);
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        button:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
-            transform: translateY(-1px);
-        }
-
-        button:active {
-            transform: translateY(1px);
-        }
-
-        /* Line ボタンの特別色 */
-        .btn-line {
-            background: #3d2d1d;
-            border-color: #6e4e2d;
-            color: var(--accent-orange);
-        }
-        .btn-line:hover {
-            border-color: var(--accent-orange);
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(255, 122, 0, 0.4);
-        }
-
-        /* BLE Status Badge */
-        .btn-ble {
-            background: #1a1010;
-            border: 1px solid #5a2020;
-            color: var(--accent-red);
-            letter-spacing: 1px;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 8px;
-        }
-
-        .btn-ble::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-red);
-            box-shadow: 0 0 8px var(--accent-red);
-        }
-
-        .btn-ble.connected {
-            background: #101c18;
-            border: 1px solid #1a5c40;
-            color: var(--accent-green);
-        }
-
-        .btn-ble.connected::before {
-            background: var(--accent-green);
-            box-shadow: 0 0 8px var(--accent-green);
-        }
-
-        /* Toggle Switch */
-        .switch-container {
-            display: inline-flex;
-            align-items: center;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .switch-track {
-            width: 44px;
-            height: 22px;
-            border-radius: 999px;
-            position: relative;
-            background: #242b3d;
-            border: 1px solid #3d4966;
-            transition: background 0.2s;
-        }
-
-        .switch-thumb {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            background: var(--text-muted);
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .switch-container.active .switch-track {
-            background: var(--accent-green);
-            border-color: #42ffaf;
-        }
-
-        .switch-container.active .switch-thumb {
-            transform: translateX(22px);
-            background: #fff;
-            box-shadow: 0 0 8px #fff;
-        }
+        .switch-container { display: inline-flex; align-items: center; cursor: pointer; margin-left: 10px; }
+        .switch-track { width: 44px; height: 22px; border-radius: 999px; position: relative; background: #242b3d; border: 1px solid #3d4966; transition: background 0.2s; }
+        .switch-thumb { width: 16px; height: 16px; border-radius: 50%; position: absolute; top: 2px; left: 2px; background: var(--text-muted); transition: transform 0.2s, background 0.2s; }
+        .switch-container.active .switch-track { background: var(--accent-green); border-color: #42ffaf; }
+        .switch-container.active .switch-thumb { transform: translateX(22px); background: #fff; box-shadow: 0 0 8px #fff; }
 
         /* ============================================================
-            TELEMETRY DATA TABLE
+            MAIN GRID (TABLE & CONTROLS)
            ============================================================ */
-        .data-section {
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+
+        .panel {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 20px;
-            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .table-container {
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
+        /* JOYSTICK & SLIDER AREA */
+        .controls-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 10px;
+            height: 100%;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
+        .joystick-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
 
-        table thead {
-            background: #181e2e;
-            color: var(--text-muted);
-            font-weight: bold;
+        .joystick-label { font-size: 14px; color: var(--accent-blue); font-weight: bold; letter-spacing: 1px; font-family: monospace; text-align: center; }
+        .input-mode-badge { font-size: 10px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; }
+        
+        .joystick-base {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: #0f131c; border: 2px solid #242b3d;
+            position: relative; touch-action: none;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
-        table th, table td {
-            padding: 12px 15px;
-            text-align: left;
+        .joystick-stick {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(145deg, #1c2230, #0f131c);
+            border: 2px solid var(--accent-orange);
+            position: absolute; top: 58px; left: 58px;
+            box-shadow: 0 0 15px rgba(255, 122, 0, 0.4);
+            pointer-events: none; transition: transform 0.1s ease-out;
         }
 
-        table td {
-            font-family: monospace;
-            color: #d0d9e0;
-            border-bottom: 1px solid var(--border-color);
+        .joystick-stick.active { transition: none; background: var(--accent-orange); box-shadow: 0 0 25px rgba(255, 122, 0, 0.8); }
+
+        /* SPEED SLIDER SECTION */
+        .slider-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            height: 220px;
         }
 
-        /* ============================================================
-            SYSTEM CONSOLE LOG
-           ============================================================ */
-        .console-info {
-            background: #07090d;
-            border: 1px solid var(--border-color);
-            font-family: monospace;
-            font-size: 12px;
-            color: #52b7ff;
-            padding: 15px;
-            height: 140px;
-            border-radius: 8px;
-            overflow-y: auto;
-            margin-top: 10px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        .slider-title { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .slider-value { font-size: 18px; color: var(--accent-orange); font-weight: bold; text-shadow: 0 0 8px rgba(255,122,0,0.5); }
+
+        .vertical-slider {
+            -webkit-appearance: none;
+            width: 160px; height: 8px;
+            background: #242b3d; border-radius: 5px;
+            outline: none;
+            transform: rotate(-90deg);
+            margin: 70px 0;
+            cursor: pointer;
         }
+
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            background: var(--accent-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-orange);
+            cursor: pointer;
+        }
+
+        /* TABLE & CONSOLE */
+        .table-container { border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); height: 300px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table thead { background: #181e2e; color: var(--text-muted); font-weight: bold; position: sticky; top: 0; }
+        table th, table td { padding: 12px 15px; text-align: left; }
+        table td { font-family: monospace; color: #d0d9e0; border-bottom: 1px solid var(--border-color); }
+        
+        .console-info { background: #07090d; border: 1px solid var(--border-color); font-family: monospace; font-size: 12px; color: #52b7ff; padding: 15px; height: 120px; border-radius: 8px; overflow-y: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); margin-top: 20px; width: 100%; }
     </style>
 </head>
 <body>
@@ -277,36 +202,60 @@
                 <span class="logo-text">VEGA</span>
                 <span class="title-text">Dashboard</span>
             </div>
-            <div class="btn-ble" id="bleStatusBadge">BLE DISCONNECTED</div>
+            <div class="badge-container">
+                <div class="badge-dev" id="devModeBadge">DEV MODE ACTIVE</div>
+                <div class="btn-ble" id="bleStatusBadge">BLE DISCONNECTED</div>
+            </div>
         </div>
 
         <div class="button-row">
-            <button id="connectBtn" onclick="connectBLEProcess()">Disconnected</button>
-            <button onclick="requestLogs()">Get Logs</button>
-            <button onclick="clearLogs()">Clear</button>
-            <button onclick="requestStatus()">Status</button>
+            <button id="connectBtn" class="btn-connect-main" onclick="connectBLEProcess()">Connect BLE</button>
+            <button onclick="sendGyroZero()">Gyro Zero</button>
+            <button onclick="sendRcOff()">RC Off</button>
+            <button onclick="clearLogs()">Clear Logs</button>
             
-            <div class="switch-container" id="toggleSwitch" onclick="toggleSwitchMode()">
+            <div class="switch-container" id="toggleSwitch" onclick="toggleRunMode()">
                 <div class="switch-track">
                     <div class="switch-thumb"></div>
                 </div>
             </div>
 
-            <button class="btn-line" onclick="sendLineCommand()">Line</button>
+            <button class="btn-line" id="lineBtn" onclick="toggleLineCommand()">Line: OFF</button>
         </div>
 
-        <div class="data-section">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Log #</th>
-                            <th>Timestamp (ms)</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body"></tbody>
-                </table>
+        <div class="dashboard-grid">
+            <div class="panel">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Log #</th>
+                                <th>Timestamp</th>
+                                <th>Value / Response</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="controls-area">
+                    <div class="joystick-section">
+                        <div class="joystick-label">
+                            <div id="xyDisplay">X: 0 | Y: 0</div>
+                            <div class="input-mode-badge" id="inputMode">Mouse/Touch Mode</div>
+                        </div>
+                        <div class="joystick-base" id="joystickBase">
+                            <div class="joystick-stick" id="joystickStick"></div>
+                        </div>
+                    </div>
+                    <div class="slider-section">
+                        <div class="slider-title">SPEED LIMIT</div>
+                        <input type="range" min="80" max="200" value="150" class="vertical-slider" id="speedSlider">
+                        <div class="slider-value" id="speedValue">150</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -314,119 +263,353 @@
     </div>
 
     <script>
-        const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-        const CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+        // BLE NUS UUIDs
+        const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+        const RX_UUID      = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+        const TX_UUID      = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 
         let bleDevice = null;
-        let bleCharacteristic = null;
+        let rxCharacteristic = null;
+        let txCharacteristic = null;
         let isBleConnected = false;
+        let isDevMode = false; // 隠しコマンドでONになる開発モードフラグ
         let logCounter = 1;
 
         window.addEventListener('DOMContentLoaded', () => {
-            logConsole("システムレディ。接続ボタンを押してBLE通信を開始してください。");
+            logConsole("システムレディ。BLE通信を開始、または隠しコマンドを入力してください。");
+            initJoystick();
+            initSlider();
+            initKeyboard();
+            initSecretCommand(); // 隠しコマンドの初期化
+            updateConnectionUI(); // UIの初期状態を反映
         });
 
-        async function connectBLEProcess() {
-            if (isBleConnected) {
-                disconnectBLE();
-                return;
-            }
-
+        // ==========================================
+        // BLE 通信ロジック & UI管理
+        // ==========================================
+        function updateConnectionUI() {
             const badge = document.getElementById('bleStatusBadge');
             const connBtn = document.getElementById('connectBtn');
 
+            if (isBleConnected) {
+                badge.innerText = "BLE ONLINE";
+                badge.className = "btn-ble connected";
+                connBtn.innerText = "Disconnect";
+                connBtn.className = "btn-connect-main connected";
+            } else {
+                badge.innerText = "BLE DISCONNECTED";
+                badge.className = "btn-ble";
+                
+                // 一度でも接続を試みて失敗、または切断された場合は「Reconnect」にする
+                if (bleDevice) {
+                    connBtn.innerText = "Reconnect BLE";
+                    connBtn.className = "btn-connect-main reconnect";
+                } else {
+                    connBtn.innerText = "Connect BLE";
+                    connBtn.className = "btn-connect-main";
+                }
+            }
+        }
+
+        async function connectBLEProcess() {
+            if (isBleConnected) { disconnectBLE(); return; }
+
             try {
-                logConsole("BLEデバイスの探索を開始...");
+                logConsole("デバイス探索中...");
                 bleDevice = await navigator.bluetooth.requestDevice({
                     filters: [{ services: [SERVICE_UUID] }]
                 });
 
-                logConsole("デバイスに接続中...");
                 const server = await bleDevice.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
-                bleCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+                rxCharacteristic = await service.getCharacteristic(RX_UUID);
+                txCharacteristic = await service.getCharacteristic(TX_UUID);
 
-                await bleCharacteristic.startNotifications();
-                bleCharacteristic.addEventListener('characteristicvaluechanged', (e) => {
+                await txCharacteristic.startNotifications();
+                txCharacteristic.addEventListener('characteristicvaluechanged', (e) => {
                     const rawData = new TextDecoder().decode(e.target.value);
-                    logConsole(`Rx: ${rawData.trim()}`);
                     appendTableData(rawData);
                 });
 
                 isBleConnected = true;
-                badge.innerText = "BLE ONLINE";
-                badge.className = "btn-ble connected";
-                connBtn.innerText = "Connected";
-                logConsole("BLE通信が正常に確立しました。");
-
+                logConsole("BLE接続成功。");
+                updateConnectionUI();
             } catch (error) {
-                logConsole(`接続エラー: ${error}`);
+                logConsole(`接続失敗またはキャンセル: ${error}`);
+                updateConnectionUI();
             }
         }
 
         function disconnectBLE() {
-            if (bleDevice && bleDevice.gatt.connected) {
-                bleDevice.gatt.disconnect();
-            }
+            if (bleDevice && bleDevice.gatt.connected) bleDevice.gatt.disconnect();
             isBleConnected = false;
-            document.getElementById('bleStatusBadge').innerText = "BLE DISCONNECTED";
-            document.getElementById('bleStatusBadge').className = "btn-ble";
-            document.getElementById('connectBtn').innerText = "Disconnected";
+            rxCharacteristic = null; txCharacteristic = null;
             logConsole("BLEデバイスを切断しました。");
+            updateConnectionUI();
+        }
+
+        async function sendBLECommand(command, silent = false) {
+            // BLEが未接続の場合の処理
+            if (!rxCharacteristic || !isBleConnected) {
+                // 開発モードがONの時のみ、コンソールに模擬送信ログを流す
+                if (isDevMode) {
+                    if(!silent) logConsole(`[DEV模擬送信]: ${command}`);
+                }
+                return;
+            }
+            try {
+                const encoder = new TextEncoder();
+                await rxCharacteristic.writeValue(encoder.encode(command));
+                if(!silent) logConsole(`Tx: ${command}`);
+            } catch (error) {
+                if(!silent) logConsole(`送信失敗: ${error}`);
+            }
+        }
+
+        // ==========================================
+        // 隠しコマンド制御 (NEW)
+        // ==========================================
+        function initSecretCommand() {
+            const secretPattern = ['d', 'e', 'v'];
+            let currentInputIndex = 0;
+
+            window.addEventListener('keydown', (e) => {
+                // 入力されたキーがパターンと一致しているかチェック
+                if (e.key.toLowerCase() === secretPattern[currentInputIndex]) {
+                    currentInputIndex++;
+                    // パターンをすべて入力し終えた場合
+                    if (currentInputIndex === secretPattern.length) {
+                        toggleDevMode();
+                        currentInputIndex = 0; // カウンターリセット
+                    }
+                } else {
+                    currentInputIndex = 0; // 間違えたらリセット
+                }
+            });
+        }
+
+        function toggleDevMode() {
+            isDevMode = !isDevMode;
+            const devBadge = document.getElementById('devModeBadge');
+            
+            if (isDevMode) {
+                devBadge.style.display = 'block';
+                logConsole("【SYSTEM】開発モードが有効化されました。未接続状態でも模擬送信が可視化されます。");
+            } else {
+                devBadge.style.display = 'none';
+                logConsole("【SYSTEM】開発モードが終了しました。");
+            }
+        }
+
+        // ==========================================
+        // UI 操作イベント
+        // ==========================================
+        function sendGyroZero() { sendBLECommand("gyro zero"); }
+        function sendRcOff() { sendBLECommand("rc off"); }
+        
+        let isLineOn = false;
+        function toggleLineCommand() { 
+            isLineOn = !isLineOn;
+            document.getElementById('lineBtn').innerText = `Line: ${isLineOn ? "ON" : "OFF"}`;
+            sendBLECommand(isLineOn ? "line on" : "line off"); 
+        }
+        
+        function toggleRunMode() {
+            const sw = document.getElementById('toggleSwitch');
+            sw.classList.toggle('active');
+            const isActive = sw.classList.contains('active');
+            sendBLECommand(isActive ? "run start" : "run stop");
         }
 
         function appendTableData(data) {
             const tbody = document.getElementById('table-body');
             const row = document.createElement('tr');
-            const timestamp = new Date().getTime();
-
-            row.innerHTML = `<td>#${logCounter++}</td><td>${timestamp}</td><td>${data.trim()}</td>`;
-            
-            if (tbody.firstChild) {
-                tbody.insertBefore(row, tbody.firstChild);
-            } else {
-                tbody.appendChild(row);
-            }
+            row.innerHTML = `<td>#${logCounter++}</td><td>${new Date().toLocaleTimeString()}</td><td>${data.trim()}</td>`;
+            if (tbody.firstChild) tbody.insertBefore(row, tbody.firstChild);
+            else tbody.appendChild(row);
         }
 
-        async function sendBLECommand(command) {
-            if (!bleCharacteristic || !isBleConnected) {
-                logConsole(`模擬送信 (未接続): ${command}`);
-                return;
-            }
-            try {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(command + "\n");
-                await bleCharacteristic.writeValue(data);
-                logConsole(`Tx: ${command}`);
-            } catch (error) {
-                logConsole(`送信失敗: ${error}`);
-            }
-        }
-
-        function requestLogs() { sendBLECommand("GET_LOGS"); }
-        function requestStatus() { sendBLECommand("REQ_STATUS"); }
-        function sendLineCommand() { sendBLECommand("CMD_LINE"); }
-        
-        function toggleSwitchMode() {
-            const sw = document.getElementById('toggleSwitch');
-            sw.classList.toggle('active');
-            const isActive = sw.classList.contains('active');
-            sendBLECommand(`SWITCH:${isActive ? "ON" : "OFF"}`);
-        }
-
-        function clearLogs() {
-            document.getElementById('table-body').innerHTML = '';
-            logCounter = 1;
-            logConsole("表示キャッシュをクリアしました。");
-        }
+        function clearLogs() { document.getElementById('table-body').innerHTML = ''; logCounter = 1; }
 
         function logConsole(msg) {
             const c = document.getElementById('console');
             const d = document.createElement('div');
             d.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            c.appendChild(d);
-            c.scrollTop = c.scrollHeight;
+            c.appendChild(d); c.scrollTop = c.scrollHeight;
+        }
+
+        // ==========================================
+        // 共有制御変数 & スライダー
+        // ==========================================
+        let currentX = 0, currentY = 0, currentSpeed = 150;
+        let isJoystickActive = false;
+        let isKeyboardActive = false;
+        let globalSendInterval = null;
+
+        function initSlider() {
+            const slider = document.getElementById('speedSlider');
+            const speedDisplay = document.getElementById('speedValue');
+            slider.addEventListener('input', (e) => {
+                currentSpeed = e.target.value;
+                speedDisplay.innerText = currentSpeed;
+            });
+        }
+
+        function startTransmissionLoop() {
+            if (!globalSendInterval) {
+                globalSendInterval = setInterval(() => {
+                    sendBLECommand(`rc move ${currentX} ${currentY} ${currentSpeed}`, true);
+                }, 100);
+            }
+        }
+
+        function stopTransmissionLoop() {
+            if (globalSendInterval) {
+                clearInterval(globalSendInterval);
+                globalSendInterval = null;
+            }
+            sendBLECommand(`rc move 0 0 ${currentSpeed}`);
+        }
+
+        // ==========================================
+        // ジョイスティック制御
+        // ==========================================
+        function initJoystick() {
+            const base = document.getElementById('joystickBase');
+            const stick = document.getElementById('joystickStick');
+            const display = document.getElementById('xyDisplay');
+            const modeBadge = document.getElementById('inputMode');
+            const maxRadius = 60;
+
+            function updatePosition(clientX, clientY) {
+                const rect = base.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                let dx = clientX - centerX, dy = clientY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > maxRadius) {
+                    dx = (dx / distance) * maxRadius; dy = (dy / distance) * maxRadius;
+                }
+                stick.style.transform = `translate(${dx}px, ${dy}px)`;
+                currentX = Math.round((dx / maxRadius) * 100);
+                currentY = Math.round((-dy / maxRadius) * 100);
+                display.innerText = `X: ${currentX} | Y: ${currentY}`;
+            }
+
+            function startDrag(e) {
+                if (isKeyboardActive) return;
+                isJoystickActive = true; 
+                stick.classList.add('active');
+                modeBadge.innerText = "Mouse/Touch Mode";
+                const x = e.touches ? e.touches[0].clientX : e.clientX;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
+                updatePosition(x, y);
+                startTransmissionLoop();
+            }
+
+            function moveDrag(e) {
+                if (!isJoystickActive) return;
+                const x = e.touches ? e.touches[0].clientX : e.clientX;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
+                updatePosition(x, y);
+            }
+
+            function endDrag() {
+                if (!isJoystickActive) return;
+                isJoystickActive = false; 
+                stick.classList.remove('active');
+                stick.style.transform = `translate(0px, 0px)`;
+                currentX = 0; currentY = 0; 
+                display.innerText = `X: 0 | Y: 0`;
+                stopTransmissionLoop();
+            }
+
+            base.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('mouseup', endDrag);
+            base.addEventListener('touchstart', startDrag, {passive: false});
+            document.addEventListener('touchmove', moveDrag, {passive: false});
+            document.addEventListener('touchend', endDrag);
+        }
+
+        // ==========================================
+        // KEYBOARD (矢印キー) 制御ロジック
+        // ==========================================
+        function initKeyboard() {
+            const stick = document.getElementById('joystickStick');
+            const display = document.getElementById('xyDisplay');
+            const modeBadge = document.getElementById('inputMode');
+
+            const keysPressed = {
+                ArrowUp: false,
+                ArrowDown: false,
+                ArrowLeft: false,
+                ArrowRight: false
+            };
+
+            function updateFromKeyboard() {
+                if (isJoystickActive) return;
+
+                let targetX = 0;
+                let targetY = 0;
+
+                if (keysPressed.ArrowUp)    targetY += 100;
+                if (keysPressed.ArrowDown)  targetY -= 100;
+                if (keysPressed.ArrowLeft)  targetX -= 100;
+                if (keysPressed.ArrowRight) targetX += 100;
+
+                currentX = targetX;
+                currentY = targetY;
+
+                const visualRadius = 60;
+                let visualX = (currentX / 100) * visualRadius;
+                let visualY = (-currentY / 100) * visualRadius;
+                
+                if (currentX !== 0 && currentY !== 0) {
+                    visualX *= 0.7071;
+                    visualY *= 0.7071;
+                }
+
+                stick.style.transform = `translate(${visualX}px, ${visualY}px)`;
+                display.innerText = `X: ${currentX} | Y: ${currentY}`;
+
+                if (keysPressed.ArrowUp || keysPressed.ArrowDown || keysPressed.ArrowLeft || keysPressed.ArrowRight) {
+                    if (!isKeyboardActive) {
+                        isKeyboardActive = true;
+                        stick.classList.add('active');
+                        modeBadge.innerText = "Keyboard Mode";
+                        startTransmissionLoop();
+                    }
+                } else {
+                    if (isKeyboardActive) {
+                        isKeyboardActive = false;
+                        stick.classList.remove('active');
+                        stopTransmissionLoop();
+                    }
+                }
+            }
+
+            window.addEventListener('keydown', (e) => {
+                // 隠しコマンドに使用するキー(d, e, v)はブラウザイベントをブロックしない
+                if (['d', 'e', 'v'].includes(e.key.toLowerCase())) return;
+
+                if (e.key in keysPressed) {
+                    e.preventDefault();
+                    if (!keysPressed[e.key]) {
+                        keysPressed[e.key] = true;
+                        updateFromKeyboard();
+                    }
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key in keysPressed) {
+                    if (keysPressed[e.key]) {
+                        keysPressed[e.key] = false;
+                        updateFromKeyboard();
+                    }
+                }
+            });
         }
     </script>
 </body>
