@@ -1,41 +1,59 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-function createWindow () {
-  const win = new BrowserWindow({
-    width: 1280,
-    height: 850,
-    title: "VEGA Dashboard (BLE)",
-    autoHideMenuBar: true,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true
-    }
-  });
-
-  win.loadFile('index.html');
-
-  // BLEデバイス選択の自動化イベント
-  win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
-    event.preventDefault();
-    
-    // マイコン側のデバイス名「VEGA_BLE_Sender」を自動探索
-    const targetDevice = deviceList.find((device) => {
-      return device.deviceName.includes('VEGA_BLE');
+function createWindow() {
+    const mainWindow = new BrowserWindow({
+        width: 1200,
+        height: 800,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true
+        }
     });
 
-    if (targetDevice) {
-      callback(targetDevice.deviceId);
-    } else {
-      if (deviceList.length > 0) {
-        callback(deviceList[0].deviceId);
-      }
-    }
-  });
+    // ==========================================
+    // Web Bluetooth API の自動接続設定
+    // ==========================================
+    mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+        event.preventDefault(); // デフォルトの挙動（ポップアップを出そうとする処理）をキャンセル
+        
+        // 検索で見つかったデバイスの中から、マイコンの名前と一致するものを探す
+        const targetDevice = deviceList.find(device => device.deviceName === 'VEGA_Mk3_BLE');
+        
+        if (targetDevice) {
+            console.log("ターゲットデバイスを発見しました:", targetDevice.deviceName);
+            callback(targetDevice.deviceId); // 見つけたらそのIDで接続
+        } else {
+            console.log("ターゲットデバイスが見つかりません...");
+            callback(''); // 見つからなかったらキャンセル
+        }
+    });
+
+    // Bluetoothの権限チェックを無条件で許可する設定
+    mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission) => {
+        if (permission === 'bluetooth') return true;
+        return false;
+    });
+    mainWindow.webContents.session.setDevicePermissionHandler((details) => {
+        if (details.deviceType === 'bluetooth') return true;
+        return false;
+    });
+
+    // ダッシュボードのHTMLを読み込む
+    mainWindow.loadFile('index.html');
 }
 
-app.whenReady().then(createWindow);
+// ==========================================
+// Electronアプリのライフサイクル管理
+// ==========================================
+app.whenReady().then(() => {
+    createWindow();
+    
+    app.on('activate', function () {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+app.on('window-all-closed', function () {
+    if (process.platform !== 'darwin') app.quit();
 });
